@@ -16,7 +16,7 @@ while IFS= read -r clave || [ -n "$clave" ]; do
         -pass pass:"$clave" 2>/dev/null
 
     # Validar si el ZIP es válido
-    if unzip -t temp.zip >/dev/null 2>&1; then
+    if unzip -p temp.zip >/dev/null 2>&1; then
         echo "🎉 Clave REAL encontrada: '$clave'"
         mv temp.zip mensaje-decifrado.zip
         exit 0
@@ -26,3 +26,4 @@ while IFS= read -r clave || [ -n "$clave" ]; do
 done < "$diccionario"
 
 echo "❌ No se encontró ninguna clave válida."
+
