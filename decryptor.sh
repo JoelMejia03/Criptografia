@@ -1,23 +1,22 @@
 #!/bin/bash
 
-archivo="mensaje-oculto"
-diccionario="diccionario.txt"
+for clave in $(cat diccionario.txt); do
 
-for clave in $(cat $diccionario); do
-    # Descifrar con la clave
+    # Intentar descifrar
     openssl enc -d -aes256 -iter 1000 \
-        -in "$archivo" \
+        -in mensaje-oculto \
         -out mensaje-decifrado \
         -pass pass:$clave 2>/dev/null
 
-    # Revisar si el archivo descifrado contiene texto ASCII
-    if file mensaje-decifrado | grep -q "ASCII text"; then
-        echo "Clave real encontrada: $clave"
+    # Verificar si el resultado es TEXTO real
+    if file mensaje-decifrado | grep -qi "text"; then
+        echo "Clave REAL encontrada: $clave"
         exit 0
     fi
 
-    # Limpia si no era buena
+    # Si no es texto, eliminarlo
     rm -f mensaje-decifrado
+
 done
 
-echo "No se encontró clave válida."
+echo "No se encontró ninguna clave válida."
