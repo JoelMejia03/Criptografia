@@ -3,25 +3,22 @@
 archivo="mensaje-oculto"
 diccionario="diccionario.txt"
 
-# Limpiar espacios finales en el diccionario
-sed -i 's/[ \t]*$//' "$diccionario"
-
-while IFS= read -r clave; do
-    # Intentar descifrar con la clave actual
-    openssl enc -d -aes256 -iter 1000 \
+while IFS= read -r clave || [ -n "$clave" ]; do
+    
+    # Intentar descifrar a un archivo temporal
+    openssl enc -d -aes256 -salt -iter 1000 \
         -in "$archivo" \
-        -out mensaje-decifrado \
+        -out temp.out \
         -pass pass:"$clave" 2>/dev/null
 
-    # Verificar si el descifrado produjo un archivo válido
-    # Para archivos binarios o texto, revisamos que el tamaño sea mayor a 0
-    if [ -s mensaje-decifrado ]; then
-        echo "Clave REAL encontrada: '$clave'"
+    # Validar si abrió correctamente
+    if [ $? -eq 0 ] && [ -s temp.out ]; then
+        echo "Clave encontrada: $clave"
+        mv temp.out mensaje-decifrado
         exit 0
     fi
 
-    # Si no es válido, borramos el archivo generado
-    rm -f mensaje-decifrado
+    rm -f temp.out
 
 done < "$diccionario"
 
